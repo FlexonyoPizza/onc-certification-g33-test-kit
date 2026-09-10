@@ -1,20 +1,45 @@
+require 'davinci_pas_test_kit'
 require_relative 'metadata'
 require_relative 'g33_options'
-require_relative 'empty_g33_group'
+require_relative 'g33_pas_import'
+require_relative 'endpoints/g33_claim_endpoint'
 
 module ONCCertificationG33TestKit
   class G33CertificationSuite < Inferno::TestSuite
+    id :g33_certification
     title 'ONC Certification (g)(33) Standardized API'
     short_title '(g)(33) Standardized API'
-    id :g33_certification
-    description <<~DESCRIPTION
-      The ONC Certification (g)(33) Standardized API Test Suite verifies the
-      conformance of Health IT systems to the requirements of the § 170.315(g)(33)
-      criterion in the ONC Certification Program.
+    description %(
+      The ONC Certification (g)(33) Standardized API Test Suite is a testing tool for Health Level 7
+      (HL7®) Fast Healthcare Interoperability Resources (FHIR®) clients seeking to meet the
+      requirements of the § 170.315(g)(33) criterion in the ONC Certification Program.
 
-      This suite is an initial scaffold and currently contains only a placeholder
-      group. Real test content will be added in future releases.
-    DESCRIPTION
+      **DISCLAIMER**: this test kit is currently a draft and not ready for ONC certification purposes.
+
+      This test suite verifies conformance to [version 2.2.1](https://hl7.org/fhir/us/davinci-pas/2.2.1)
+      of the Da Vinci Prior Authorization Support (PAS) Implementation Guide using the client tests
+      from the [Da Vinci PAS Test Kit](https://github.com/inferno-framework/davinci-pas-test-kit).
+
+      Authentication is performed using SMART Backend Services. Unlike the PAS Test Kit's client
+      suite, no client security type is selected when creating a session because § 170.315(g)(33)
+      certification is demonstrated using SMART Backend Services only.
+
+      To get started, configure the Health IT Module to make prior authorization requests against
+      Inferno's simulated PAS server and begin with the "Client Registration" group. Inferno's
+      simulated PAS endpoints are served under `#{G33Options::PAS_V221_PREFIX}`.
+
+      Systems must pass all tests to qualify for ONC certification.
+    )
+
+    suite_summary %(
+      The ONC Certification (g)(33) Standardized API Test Kit is a testing tool for Health Level 7
+      (HL7®) Fast Healthcare Interoperability Resources (FHIR®) clients seeking to meet the
+      requirements of the § 170.315(g)(33) criterion in the ONC Certification Program.
+
+      This suite tests conformance to version 2.2.1 of the Da Vinci Prior Authorization Support
+      (PAS) Implementation Guide using SMART Backend Services authentication. Click
+      'Create Test Session' to begin testing.
+    )
 
     links [
       {
@@ -28,23 +53,173 @@ module ONCCertificationG33TestKit
       {
         label: 'Download',
         url: 'https://github.com/onc-healthit/onc-certification-g33-test-kit/releases'
+      },
+      {
+        label: 'Implementation Guide',
+        url: "https://hl7.org/fhir/us/davinci-pas/#{G33Options::PAS_V221}/"
       }
     ]
 
-    suite_option :us_core_version,
-                 title: 'US Core Version',
+    # Allow the tester to select which PAS client version to test against when launching the suite.
+    # Only v2.2.1 is implemented today, but the version under test is shown when creating a session
+    # and a later version can be added here alongside another prefixed set of endpoints.
+    suite_option :pas_version,
+                 title: 'Client Version',
                  list_options: [
-                   { label: 'US Core 6.1.0 / USCDI v3', value: G33Options::US_CORE_6 },
-                   { label: 'US Core 7.0.0 / USCDI v4', value: G33Options::US_CORE_7 }
+                   {
+                     label: "Client Suite v#{G33Options::PAS_V221}",
+                     value: G33Options::PAS_VERSION_2_2_1
+                   }
                  ]
 
-    # All FHIR validation requests will use this FHIR validator
+    requirement_sets(
+      {
+        identifier: "hl7.fhir.us.davinci-pas_#{G33Options::PAS_V221}",
+        title: "Da Vinci Prior Authorization Support (PAS) v#{G33Options::PAS_V221}",
+        actor: 'PAS Client'
+      },
+      {
+        identifier: 'hl7.fhir.uv.subscriptions_1.1.0',
+        title: 'Subscriptions R5 Backport IG',
+        actor: 'Client'
+      }
+    )
+
     fhir_resource_validator do
+      igs(G33Options::PAS_V221_IG_PACKAGE, G33Options::US_CORE_IG_PACKAGE)
+
+      validation_context do
+        txServer ENV.fetch('G33_TERMINOLOGY_SERVER', 'https://tx.fhir.org/r4')
+        displayWarnings false
+      end
+
       exclude_message do |message|
-        message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
+        # Messages expected of the form `<ResourceType>: <FHIRPath>: <message>`
+        # We strip `<ResourceType>: <FHIRPath>: ` for the sake of matching
+        DaVinciPASTestKit::V221_SUPPRESSED_MESSAGES.match?(message.message.sub(/\A\S+: \S+: /, ''))
       end
     end
 
-    group from: :empty_g33_group
+    # The PAS IG version lives in a path prefix rather than in the suite id, so this stays a single
+    # suite as more versions are added
+    PAS_V221_PREFIX = G33Options::PAS_V221_PREFIX
+
+    TOKEN_PATH = (PAS_V221_PREFIX + UDAPSecurityTestKit::TOKEN_PATH).freeze
+
+    PAS_ENDPOINT_PATHS = [
+      DaVinciPASTestKit::FHIR_METADATA_PATH,
+      DaVinciPASTestKit::SESSION_FHIR_METADATA_PATH,
+      DaVinciPASTestKit::SUBMIT_PATH,
+      DaVinciPASTestKit::SESSION_SUBMIT_PATH,
+      DaVinciPASTestKit::INQUIRE_PATH,
+      DaVinciPASTestKit::SESSION_INQUIRE_PATH,
+      DaVinciPASTestKit::FHIR_SUBSCRIPTION_PATH,
+      DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_PATH,
+      DaVinciPASTestKit::FHIR_SUBSCRIPTION_INSTANCE_PATH,
+      DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_INSTANCE_PATH,
+      DaVinciPASTestKit::FHIR_SUBSCRIPTION_INSTANCE_STATUS_PATH,
+      DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_INSTANCE_STATUS_PATH,
+      DaVinciPASTestKit::FHIR_SUBSCRIPTION_RESOURCE_STATUS_PATH,
+      DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_RESOURCE_STATUS_PATH
+    ].freeze
+
+    route(:get, PAS_V221_PREFIX + SMARTAppLaunch::SMART_DISCOVERY_PATH, lambda { |_env|
+      SMARTAppLaunch::MockSMARTServer.smart_server_metadata(id)
+    })
+    route(:get, SMARTAppLaunch::SMART_DISCOVERY_PATH, lambda { |_env|
+      SMARTAppLaunch::MockSMARTServer.smart_server_metadata(id)
+    })
+
+    route(:get, PAS_V221_PREFIX + DaVinciPASTestKit::FHIR_METADATA_PATH, lambda { |env|
+      DaVinciPASTestKit::MockPASServer.capability_statement_response(env)
+    })
+    route(:get, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_FHIR_METADATA_PATH, lambda { |env|
+      DaVinciPASTestKit::MockPASServer.capability_statement_response(env)
+    })
+
+    suite_endpoint :post, TOKEN_PATH, DaVinciPASTestKit::MockUdapSmartServer::TokenEndpoint
+    suite_endpoint :post, UDAPSecurityTestKit::TOKEN_PATH, DaVinciPASTestKit::MockUdapSmartServer::TokenEndpoint
+
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SUBMIT_PATH, G33ClaimEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_SUBMIT_PATH, G33ClaimEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::INQUIRE_PATH, G33ClaimEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_INQUIRE_PATH, G33ClaimEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::FHIR_SUBSCRIPTION_PATH,
+                   DaVinciPASTestKit::SubscriptionCreateEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_PATH,
+                   DaVinciPASTestKit::SubscriptionCreateEndpoint
+    suite_endpoint :get, PAS_V221_PREFIX + DaVinciPASTestKit::FHIR_SUBSCRIPTION_INSTANCE_PATH,
+                   SubscriptionsTestKit::SubscriptionReadEndpoint
+    suite_endpoint :get, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_INSTANCE_PATH,
+                   SubscriptionsTestKit::SubscriptionReadEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::FHIR_SUBSCRIPTION_INSTANCE_STATUS_PATH,
+                   DaVinciPASTestKit::SubscriptionStatusEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_INSTANCE_STATUS_PATH,
+                   DaVinciPASTestKit::SubscriptionStatusEndpoint
+    suite_endpoint :get, PAS_V221_PREFIX + DaVinciPASTestKit::FHIR_SUBSCRIPTION_INSTANCE_STATUS_PATH,
+                   DaVinciPASTestKit::SubscriptionStatusEndpoint
+    suite_endpoint :get, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_INSTANCE_STATUS_PATH,
+                   DaVinciPASTestKit::SubscriptionStatusEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::FHIR_SUBSCRIPTION_RESOURCE_STATUS_PATH,
+                   DaVinciPASTestKit::SubscriptionStatusEndpoint
+    suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_RESOURCE_STATUS_PATH,
+                   DaVinciPASTestKit::SubscriptionStatusEndpoint
+
+    allow_cors(TOKEN_PATH, UDAPSecurityTestKit::TOKEN_PATH,
+               PAS_V221_PREFIX + SMARTAppLaunch::SMART_DISCOVERY_PATH, SMARTAppLaunch::SMART_DISCOVERY_PATH,
+               *PAS_ENDPOINT_PATHS.map { |path| PAS_V221_PREFIX + path })
+
+    def self.extract_token_from_query_params(request)
+      request.query_parameters['token']
+    end
+
+    resume_test_route :get, PAS_V221_PREFIX + DaVinciPASTestKit::RESUME_PASS_PATH do |request|
+      G33CertificationSuite.extract_token_from_query_params(request)
+    end
+    resume_test_route :get, PAS_V221_PREFIX + DaVinciPASTestKit::RESUME_FAIL_PATH, result: 'fail' do |request|
+      G33CertificationSuite.extract_token_from_query_params(request)
+    end
+
+    # SMART Backend Services is the only authentication approach used
+    SMART_GROUP_CONFIG = { inputs: { client_id: { optional: false } } }.freeze
+
+    G33PASImport.import!(
+      group(from: :pas_client_v221_registration, id: :g33_pas_client_v221_registration) do
+        DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
+        config(SMART_GROUP_CONFIG)
+      end
+    )
+
+    G33PASImport.import!(
+      group(from: :pas_client_v221_subscription_setup, id: :g33_pas_client_v221_subscription_setup) do
+        DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
+        config(SMART_GROUP_CONFIG)
+      end
+    )
+
+    G33PASImport.import!(
+      group(from: :pas_client_v221_workflows, id: :g33_pas_client_v221_workflows) do
+        DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
+        config(SMART_GROUP_CONFIG)
+      end
+    )
+
+    G33PASImport.import!(
+      group(from: :pas_client_v221_must_support, id: :g33_pas_client_v221_must_support) do
+        DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
+        config(SMART_GROUP_CONFIG)
+      end
+    )
+
+    G33PASImport.import!(
+      group(from: :pas_client_v221_error_handling_group, id: :g33_pas_client_v221_error_handling) do
+        DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
+        config(SMART_GROUP_CONFIG)
+      end
+    )
+
+    G33PASImport.import!(group(from: :pas_client_v221_auth_smart, id: :g33_pas_client_v221_auth_smart))
+
+    G33PASImport.import!(group(from: :pas_client_v221_attestations, id: :g33_pas_client_v221_attestations))
   end
 end

@@ -1,3 +1,14 @@
+GIT
+  remote: https://github.com/inferno-framework/davinci-pas-test-kit.git
+  revision: 49ffd923dabf379353e849beb39afb68223ba40c
+  branch: main
+  specs:
+    davinci_pas_test_kit (0.15.2)
+      inferno_core (~> 1.4, >= 1.4.0)
+      smart_app_launch_test_kit (~> 1.0, >= 1.0.2)
+      subscriptions_test_kit (~> 0.12, >= 0.12.2)
+      udap_security_test_kit (~> 0.12, >= 0.12.2)
+
 PATH
   remote: .
   specs:
@@ -50,17 +61,12 @@ GEM
       database_cleaner (~> 1.99.0)
       sequel
     date_time_precision (0.8.1)
-    davinci_pas_test_kit (0.15.2)
-      inferno_core (~> 1.4, >= 1.4.0)
-      smart_app_launch_test_kit (~> 1.0, >= 1.0.2)
-      subscriptions_test_kit (~> 0.12, >= 0.12.2)
-      udap_security_test_kit (~> 0.12, >= 0.12.2)
     debug (1.11.1)
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
     docile (1.4.1)
-    domain_name (0.6.20260902)
+    domain_name (0.6.20260907)
     dotenv (2.8.1)
     drb (2.2.3)
     dry-auto_inject (1.0.1)
@@ -326,7 +332,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.7)
-    rubocop (1.90.0)
+    rubocop (1.91.0)
       json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -424,8 +430,10 @@ PLATFORMS
 
 DEPENDENCIES
   database_cleaner-sequel (~> 1.8)
+  davinci_pas_test_kit!
   debug
   factory_bot (~> 6.1)
+  json (< 3)
   onc_certification_g33_test_kit!
   rack-test
   rspec (~> 3.10)
@@ -457,11 +465,11 @@ CHECKSUMS
   database_cleaner (1.99.0) sha256=4854c518ed36fae7ea8961993ff3cfe7c0a0434c4762ab2f0026075adbd2d1b2
   database_cleaner-sequel (1.99.0) sha256=b0cdc1f3ef84f783daefa5101ff9b7444cc2070a572cbbd7ce14e6b30090e427
   date_time_precision (0.8.1) sha256=77547764faca6c73761b9c10d7a226fd29de44ef42538c644da01680a1ee22aa
-  davinci_pas_test_kit (0.15.2) sha256=d10c53e05020fee147cfa3eaa7e2b322eac4b2e6ba2e6f7ba49c586b7719e751
+  davinci_pas_test_kit (0.15.2)
   debug (1.11.1) sha256=2e0b0ac6119f2207a6f8ac7d4a73ca8eb4e440f64da0a3136c30343146e952b6
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
   docile (1.4.1) sha256=96159be799bfa73cdb721b840e9802126e4e03dfc26863db73647204c727f21e
-  domain_name (0.6.20260902) sha256=4fac7f8e0a77dc85ec02f6534fdeff38e143d434ab8a86528fe68ca5bc45a042
+  domain_name (0.6.20260907) sha256=5517a7f82c4464a61fc17133c3f6a02833faa13533c16c07e8f73b11d872cb03
   dotenv (2.8.1) sha256=c5944793349ae03c432e1780a2ca929d60b88c7d14d52d630db0508c3a8a17d8
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   dry-auto_inject (1.0.1) sha256=7dc28d57ea22947f6162ca897417e951e0f88ade11dff17fccd0de955b5e4d14
@@ -562,7 +570,7 @@ CHECKSUMS
   rspec-expectations (3.13.5) sha256=33a4d3a1d95060aea4c94e9f237030a8f9eae5615e9bd85718fe3a09e4b58836
   rspec-mocks (3.13.8) sha256=086ad3d3d17533f4237643de0b5c42f04b66348c28bf6b9c2d3f4a3b01af1d47
   rspec-support (3.13.7) sha256=0640e5570872aafefd79867901deeeeb40b0c9875a36b983d85f54fb7381c47c
-  rubocop (1.90.0) sha256=9eb4c065b5c5154e4ef554c547972f3905a9eb6b53e657e580b6796b54bf8242
+  rubocop (1.91.0) sha256=9c82b7bf391c5d7e3798c5b9996e22a1fe3bd7468e351dfdeb96140c058296d0
   rubocop-ast (1.50.0) sha256=b9ca88300da0803ee222ad20cdb30494c0a784eed06fdc35d254b06d662788db
   rubocop-rspec (3.10.2) sha256=0b3e2ecc592cd10ecbf0095bb58d1e357905276e069643523cc19eb7495f65e2
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33

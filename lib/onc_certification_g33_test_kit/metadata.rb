@@ -17,13 +17,15 @@ module ONCCertificationG33TestKit
 
       ## Running the Certification Tests
 
-      Certification against § 170.315(g)(33) is demonstrated by running the **Da Vinci
-      PAS Client Suite v2.2.1**, listed below. That suite comes from the
-      [Da Vinci PAS Test Kit](https://github.com/inferno-framework/davinci-pas-test-kit)
-      and verifies conformance to [version 2.2.1](https://hl7.org/fhir/us/davinci-pas/2.2.1)
-      of the Da Vinci Prior Authorization Support (PAS) Implementation Guide. Select it,
-      choose the client security type the system under test uses, and click 'Create Test
-      Session' to begin.
+      Certification against § 170.315(g)(33) is demonstrated by running the **ONC
+      Certification (g)(33) Standardized API** suite, listed below. It verifies
+      conformance to [version 2.2.1](https://hl7.org/fhir/us/davinci-pas/2.2.1) of the
+      Da Vinci Prior Authorization Support (PAS) Implementation Guide using the client
+      tests from the
+      [Da Vinci PAS Test Kit](https://github.com/inferno-framework/davinci-pas-test-kit).
+
+      Authentication uses SMART Backend Services. Select the suite and click#{' '}
+      'Create Test Session' to begin.
 
       ## Status
 
@@ -32,8 +34,8 @@ module ONCCertificationG33TestKit
       tested.
     DESCRIPTION
 
-    suite_ids [:davinci_pas_client_suite_v221]
-    tags [] # E.g., ['SMART App Launch', 'US Core']
+    suite_ids [:g33_certification]
+    tags ['Da Vinci PAS', 'SMART App Launch']
     last_updated LAST_UPDATED
     version VERSION
     maturity 'Low'
