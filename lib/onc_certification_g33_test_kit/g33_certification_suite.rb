@@ -60,14 +60,11 @@ module ONCCertificationG33TestKit
       }
     ]
 
-    # Allow the tester to select which PAS client version to test against when launching the suite.
-    # Only v2.2.1 is implemented today, but the version under test is shown when creating a session
-    # and a later version can be added here alongside another prefixed set of endpoints.
     suite_option :pas_version,
                  title: 'Test Suite',
                  list_options: [
                    {
-                     label: "Client Suite v2.2.1",
+                     label: 'Client Suite v2.2.1',
                      value: G33Options::PAS_VERSION_2_2_1
                    }
                  ]
