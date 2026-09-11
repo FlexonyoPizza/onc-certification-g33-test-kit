@@ -11,11 +11,6 @@ gem 'davinci_pas_test_kit',
     git: 'https://github.com/inferno-framework/davinci-pas-test-kit.git',
     branch: 'main'
 
-# activesupport still passes the `quirks_mode:` keyword that json 3.x removed, so loading the test
-# kit raises ArgumentError under json 3. Resolving the PAS kit from github lifted the upper bound the
-# released gem was providing, so it is pinned here instead for now.
-gem 'json', '< 3'
-
 group :development, :test do
   gem 'debug'
   gem 'rubocop', '~> 1.9'

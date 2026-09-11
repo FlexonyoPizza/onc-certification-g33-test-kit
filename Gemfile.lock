@@ -433,7 +433,6 @@ DEPENDENCIES
   davinci_pas_test_kit!
   debug
   factory_bot (~> 6.1)
-  json (< 3)
   onc_certification_g33_test_kit!
   rack-test
   rspec (~> 3.10)
