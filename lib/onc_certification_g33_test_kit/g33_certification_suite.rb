@@ -1,4 +1,5 @@
 require 'davinci_pas_test_kit'
+require 'smart_app_launch_test_kit' #added this requirement to test backend services
 require_relative 'metadata'
 require_relative 'g33_options'
 require_relative 'g33_pas_import'
