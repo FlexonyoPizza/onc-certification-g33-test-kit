@@ -1,5 +1,5 @@
 require 'davinci_pas_test_kit'
-require 'smart_app_launch_test_kit' #added this requirement to test backend services
+require 'smart_app_launch_test_kit' # added this requirement to test backend services
 require_relative 'metadata'
 require_relative 'g33_options'
 require_relative 'g33_pas_import'
@@ -121,6 +121,16 @@ module ONCCertificationG33TestKit
       DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_RESOURCE_STATUS_PATH
     ].freeze
 
+    # WORKAROUND, and a constraint on adding a second PAS version here.
+    #
+    # MockSMARTServer.smart_server_metadata takes only a suite id and builds its endpoint urls as
+    # /custom/<suite id><path>, with no way to include a path prefix. Even the prefixed discovery
+    # document below therefore advertises an *unprefixed* token endpoint, so the unprefixed
+    # discovery and token routes have to exist for a client that follows discovery to authenticate.
+    #
+    # These two unprefixed paths are consequently not version-scoped: a second PAS version added to
+    # this suite would collide on them rather than getting its own copies. Resolving that needs an
+    # upstream change letting the mock SMART server emit a prefix.
     route(:get, PAS_V221_PREFIX + SMARTAppLaunch::SMART_DISCOVERY_PATH, lambda { |_env|
       SMARTAppLaunch::MockSMARTServer.smart_server_metadata(id)
     })
@@ -135,6 +145,9 @@ module ONCCertificationG33TestKit
       DaVinciPASTestKit::MockPASServer.capability_statement_response(env)
     })
 
+    # The prefixed path is what the registration test hands the tester and what the SMART
+    # verification tests check the client's `aud` claim against; the unprefixed one is what the
+    # discovery document above advertises. Both are served so either route authenticates.
     suite_endpoint :post, TOKEN_PATH, DaVinciPASTestKit::MockUdapSmartServer::TokenEndpoint
     suite_endpoint :post, UDAPSecurityTestKit::TOKEN_PATH, DaVinciPASTestKit::MockUdapSmartServer::TokenEndpoint
 
@@ -181,43 +194,52 @@ module ONCCertificationG33TestKit
     # SMART Backend Services is the only authentication approach used
     SMART_GROUP_CONFIG = { inputs: { client_id: { optional: false } } }.freeze
 
-    G33PASImport.import!(
+    # Imports a group from the PAS v2.2.1 client suite and tags it with that version, so the
+    # :pas_version suite option selects between versions rather than showing every version's groups
+    # at once.
+    def self.import_v221!(runnable)
+      G33PASImport.import!(runnable)
+      runnable.required_suite_options(G33Options::PAS_V221_REQUIREMENT)
+      runnable
+    end
+
+    import_v221!(
       group(from: :pas_client_v221_registration, id: :g33_pas_client_v221_registration) do
         DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
         config(SMART_GROUP_CONFIG)
       end
     )
 
-    G33PASImport.import!(
+    import_v221!(
       group(from: :pas_client_v221_subscription_setup, id: :g33_pas_client_v221_subscription_setup) do
         DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
         config(SMART_GROUP_CONFIG)
       end
     )
 
-    G33PASImport.import!(
+    import_v221!(
       group(from: :pas_client_v221_workflows, id: :g33_pas_client_v221_workflows) do
         DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
         config(SMART_GROUP_CONFIG)
       end
     )
 
-    G33PASImport.import!(
+    import_v221!(
       group(from: :pas_client_v221_must_support, id: :g33_pas_client_v221_must_support) do
         DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
         config(SMART_GROUP_CONFIG)
       end
     )
 
-    G33PASImport.import!(
+    import_v221!(
       group(from: :pas_client_v221_error_handling_group, id: :g33_pas_client_v221_error_handling) do
         DaVinciPASTestKit::PASClientOptions.recursive_remove_input(self, :session_url_path)
         config(SMART_GROUP_CONFIG)
       end
     )
 
-    G33PASImport.import!(group(from: :pas_client_v221_auth_smart, id: :g33_pas_client_v221_auth_smart))
+    import_v221!(group(from: :pas_client_v221_auth_smart, id: :g33_pas_client_v221_auth_smart))
 
-    G33PASImport.import!(group(from: :pas_client_v221_attestations, id: :g33_pas_client_v221_attestations))
+    import_v221!(group(from: :pas_client_v221_attestations, id: :g33_pas_client_v221_attestations))
   end
 end

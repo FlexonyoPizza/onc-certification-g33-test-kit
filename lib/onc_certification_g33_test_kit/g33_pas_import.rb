@@ -11,8 +11,6 @@ module ONCCertificationG33TestKit
   end
 
   module G33PASImport
-    STALE_CACHE_IVARS = [:@test_count, :@available_inputs, :@children_available_inputs].freeze
-
     def self.import!(runnable)
       select_client_type!(runnable)
       exclude_optional!(runnable)
@@ -28,7 +26,6 @@ module ONCCertificationG33TestKit
       rejected = runnable.all_children.reject { |child| client_type_match?(child) }
       rejected.each(&:remove_self_from_repository)
       runnable.all_children.reject! { |child| rejected.include?(child) }
-      clear_stale_caches!(runnable)
 
       runnable.all_children.each do |child|
         child.required_suite_options(client_type_free_requirements(child))
@@ -54,25 +51,26 @@ module ONCCertificationG33TestKit
     def self.exclude_optional!(runnable)
       runnable.all_children.reject(&:required?).each(&:remove_self_from_repository)
       runnable.all_children.select!(&:required?)
-      clear_stale_caches!(runnable)
 
       runnable.all_children.each { |child| exclude_optional!(child) }
     end
-
-    def self.clear_stale_caches!(runnable)
-      STALE_CACHE_IVARS.each do |ivar|
-        runnable.remove_instance_variable(ivar) if runnable.instance_variable_defined?(ivar)
-      end
-    end
-    private_class_method :clear_stale_caches!
 
     def self.rewrite_pas_urls!(runnable)
       runnable.include(G33ClientURLs) if runnable.include?(DaVinciPASTestKit::DaVinciPASV221::URLs)
       rewrite_runnable_text!(runnable)
       rewrite_input_descriptions!(runnable)
+      rewrite_endpoint_suite_id!(runnable)
 
       runnable.all_children.each { |child| rewrite_pas_urls!(child) }
     end
+
+    def self.rewrite_endpoint_suite_id!(runnable)
+      return unless runnable.config.options[:endpoint_suite_id].to_s ==
+                    DaVinciPASTestKit::DaVinciPASV221::ClientSuite.id.to_s
+
+      runnable.config(options: { endpoint_suite_id: prefixed_suite_id })
+    end
+    private_class_method :rewrite_endpoint_suite_id!
 
     def self.rewrite_runnable_text!(runnable)
       [:description, :input_instructions].each do |field|
@@ -96,9 +94,14 @@ module ONCCertificationG33TestKit
     end
     private_class_method :rewrite_input_descriptions!
 
+    # The suite id as it appears in endpoint paths, including the PAS version prefix
+    def self.prefixed_suite_id
+      "#{G33ClientURLs::SUITE_ID}#{G33Options::PAS_V221_PREFIX}"
+    end
+
     # Includes the PAS version prefix, so imported tests point at this suite's v2.2.1 endpoints
     def self.base_url
-      "#{Inferno::Application['base_url']}/custom/#{G33ClientURLs::SUITE_ID}#{G33Options::PAS_V221_PREFIX}"
+      "#{Inferno::Application['base_url']}/custom/#{prefixed_suite_id}"
     end
 
     def self.pas_base_url

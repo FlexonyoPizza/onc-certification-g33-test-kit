@@ -10,6 +10,10 @@ module ONCCertificationG33TestKit
 
     PAS_VERSION_2_2_1 = 'pas_v221'.freeze # For selecting the PAS client version in the suite options
 
+    # Tags the groups imported from the PAS v2.2.1 client suite, so the :pas_version suite option
+    # selects between versions once a second one is added alongside them.
+    PAS_V221_REQUIREMENT = { pas_version: PAS_VERSION_2_2_1 }.freeze
+
     CLIENT_TYPE = DaVinciPASTestKit::PASClientOptions::SMART_BACKEND_SERVICES_CONFIDENTIAL_ASYMMETRIC
 
     US_CORE_3 = 'us_core_3'.freeze

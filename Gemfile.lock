@@ -13,7 +13,7 @@ PATH
   remote: .
   specs:
     onc_certification_g33_test_kit (0.0.0)
-      davinci_pas_test_kit (~> 0.15, >= 0.15.1)
+      davinci_pas_test_kit (~> 0.15, >= 0.15.2)
       inferno_core (~> 1.4, >= 1.4.4)
 
 GEM
