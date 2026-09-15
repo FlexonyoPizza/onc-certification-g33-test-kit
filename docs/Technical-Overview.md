@@ -71,8 +71,6 @@ The specific test kits that are imported into this test kit include:
    All (g)(33) tests are imported directly from the PAS test kit's client suite.
 1. **[SMART App Launch Test Kit](https://github.com/inferno-framework/smart-app-launch-test-kit)**:
    The PAS test kit uses SMART Backend Services tests which are in turn imported into (g)(33).
-1. **[Subscriptions Test Kit](https://github.com/inferno-framework/subscriptions-test-kit)**:
-   The PAS test kit uses Subscriptions R5 Backport tests for notification delivery.
 
 ## Test Kit Code Organization
 
@@ -132,9 +130,11 @@ Backend Services client:
        the suite appends `/Subscription` and `/Claim/$submit` itself.
      - OAuth Credentials: Auth Type "Backend Services", the client id from the
        (g)(33) preset, and the token endpoint
-       `<inferno-base>/custom/g33_certification/auth/token`. An access token must
-       be provided, since Inferno's FHIR client only refreshes an existing token
-       and will not fetch an initial one.
+       `<inferno-base>/custom/g33_certification/pas_v221/auth/token`. This is the
+       only token path this suite serves, and is the same one the SMART discovery
+       document advertises. An access token must be provided, since Inferno's
+       FHIR client only refreshes an existing token and will not fetch an initial
+       one.
      - Request payloads for the group being run, which the PAS Test Kit's own
        server preset provides.
   1. Start the (g)(33) group under test first and leave it on its "User Action

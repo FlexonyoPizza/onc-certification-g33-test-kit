@@ -47,9 +47,7 @@ The following steps necessary to complete certification testing are described in
 * Select which version of the PAS client suite to test against, then click
   'Create Test Session'.
 
-Unlike some other test kits, no client security type is selected. The (g)(33)
-criterion requires SMART Backend Services authentication, so it is always used
-and the tests that apply to other authentication approaches are not present.
+*Note that there is no option to select a specific client security type. The (g)(33) criterion requires SMART Backend Services authentication, so it is always used and the tests that apply to other authentication approaches are not present.
 
 This creates a new test session. The header states which version of the test kit
 is being used and which client version was selected.
@@ -239,10 +237,7 @@ attestations for the remaining requirements of the criterion.
 *   To review the exact requirement text behind a test, open its 'ABOUT' tab and follow the
     'View Specification Requirements' link.
 
-These tests cover areas that are very broad or otherwise difficult to demonstrate
-or mechanically verify, such as the expectations a Health IT Module places on
-data elements and the ability for providers to review a submission before it is
-sent.
+These tests cover areas that for now are very broad or otherwise difficult to demonstrate or mechanically verify.
 
 ## Step 10: Review Results
 
