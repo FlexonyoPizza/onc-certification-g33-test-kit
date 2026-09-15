@@ -122,7 +122,7 @@ module ONCCertificationG33TestKit
     ].freeze
 
     # smart_server_metadata builds its urls by interpolating whatever it is given into
-    # /custom/<id><path>, so it is given the prefixed suite id rather than the bare one, 
+    # /custom/<id><path>, so it is given the prefixed suite id rather than the bare one,
     # prefixed urls are the only ones accepted and actually served by this suite
     route(:get, PAS_V221_PREFIX + SMARTAppLaunch::SMART_DISCOVERY_PATH, lambda { |_env|
       SMARTAppLaunch::MockSMARTServer.smart_server_metadata(G33PASImport.prefixed_suite_id)
@@ -135,7 +135,7 @@ module ONCCertificationG33TestKit
       DaVinciPASTestKit::MockPASServer.capability_statement_response(env)
     })
 
-    # Only the prefixed token path is served, so that the two ways a client can learn this url 
+    # Only the prefixed token path is served, so that the two ways a client can learn this url
     # (fetching the discovery document above, or being handed it by the registration test) give the
     # same answer, and that answer is the one the verification test accepts in the `aud` claim.
     # Serving an unprefixed path would let a misconfigured client get a token and then
