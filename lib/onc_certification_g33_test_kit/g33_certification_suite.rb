@@ -121,21 +121,11 @@ module ONCCertificationG33TestKit
       DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_RESOURCE_STATUS_PATH
     ].freeze
 
-    # WORKAROUND, and a constraint on adding a second PAS version here.
-    #
-    # MockSMARTServer.smart_server_metadata takes only a suite id and builds its endpoint urls as
-    # /custom/<suite id><path>, with no way to include a path prefix. Even the prefixed discovery
-    # document below therefore advertises an *unprefixed* token endpoint, so the unprefixed
-    # discovery and token routes have to exist for a client that follows discovery to authenticate.
-    #
-    # These two unprefixed paths are consequently not version-scoped: a second PAS version added to
-    # this suite would collide on them rather than getting its own copies. Resolving that needs an
-    # upstream change letting the mock SMART server emit a prefix.
+    # smart_server_metadata builds its urls by interpolating whatever it is given into
+    # /custom/<id><path>, so it is given the prefixed suite id rather than the bare one, 
+    # prefixed urls are the only ones accepted and actually served by this suite
     route(:get, PAS_V221_PREFIX + SMARTAppLaunch::SMART_DISCOVERY_PATH, lambda { |_env|
-      SMARTAppLaunch::MockSMARTServer.smart_server_metadata(id)
-    })
-    route(:get, SMARTAppLaunch::SMART_DISCOVERY_PATH, lambda { |_env|
-      SMARTAppLaunch::MockSMARTServer.smart_server_metadata(id)
+      SMARTAppLaunch::MockSMARTServer.smart_server_metadata(G33PASImport.prefixed_suite_id)
     })
 
     route(:get, PAS_V221_PREFIX + DaVinciPASTestKit::FHIR_METADATA_PATH, lambda { |env|
@@ -145,11 +135,12 @@ module ONCCertificationG33TestKit
       DaVinciPASTestKit::MockPASServer.capability_statement_response(env)
     })
 
-    # The prefixed path is what the registration test hands the tester and what the SMART
-    # verification tests check the client's `aud` claim against; the unprefixed one is what the
-    # discovery document above advertises. Both are served so either route authenticates.
+    # Only the prefixed token path is served, so that the two ways a client can learn this url 
+    # (fetching the discovery document above, or being handed it by the registration test) give the
+    # same answer, and that answer is the one the verification test accepts in the `aud` claim.
+    # Serving an unprefixed path would let a misconfigured client get a token and then
+    # fail verification.
     suite_endpoint :post, TOKEN_PATH, DaVinciPASTestKit::MockUdapSmartServer::TokenEndpoint
-    suite_endpoint :post, UDAPSecurityTestKit::TOKEN_PATH, DaVinciPASTestKit::MockUdapSmartServer::TokenEndpoint
 
     suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SUBMIT_PATH, G33ClaimEndpoint
     suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_SUBMIT_PATH, G33ClaimEndpoint
@@ -176,8 +167,7 @@ module ONCCertificationG33TestKit
     suite_endpoint :post, PAS_V221_PREFIX + DaVinciPASTestKit::SESSION_FHIR_SUBSCRIPTION_RESOURCE_STATUS_PATH,
                    DaVinciPASTestKit::SubscriptionStatusEndpoint
 
-    allow_cors(TOKEN_PATH, UDAPSecurityTestKit::TOKEN_PATH,
-               PAS_V221_PREFIX + SMARTAppLaunch::SMART_DISCOVERY_PATH, SMARTAppLaunch::SMART_DISCOVERY_PATH,
+    allow_cors(TOKEN_PATH, PAS_V221_PREFIX + SMARTAppLaunch::SMART_DISCOVERY_PATH,
                *PAS_ENDPOINT_PATHS.map { |path| PAS_V221_PREFIX + path })
 
     def self.extract_token_from_query_params(request)

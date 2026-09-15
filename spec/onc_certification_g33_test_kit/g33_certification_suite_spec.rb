@@ -98,6 +98,32 @@ RSpec.describe ONCCertificationG33TestKit::G33CertificationSuite do
         "#{ONCCertificationG33TestKit::G33PASImport.base_url}#{SMARTAppLaunch::TOKEN_PATH}"
       )
     end
+
+    # A client that discovers the token endpoint rather than being handed it must end up at the
+    # same url, or it authenticates successfully and then fails the `aud` check in the token
+    # request verification test.
+    it 'advertises the same endpoints in discovery that the verification tests require' do
+      discovery = Inferno.routes.find do |route|
+        route[:suite]&.id == suite.id && route[:path].end_with?(SMARTAppLaunch::SMART_DISCOVERY_PATH)
+      end
+      _status, _headers, body = discovery[:handler].call({})
+      metadata = JSON.parse(body.first)
+      verification = all_runnables.find do |runnable|
+        runnable.id.to_s.end_with?('smart_client_token_request_bsca_verification')
+      end
+      registration = all_runnables.find { |runnable| runnable.id.to_s.end_with?('reg_config_smart_display') }
+
+      expect(metadata['token_endpoint']).to eq(verification.new.client_token_url)
+      expect(metadata['token_endpoint']).to eq(registration.new.token_url)
+      expect(metadata['issuer']).to eq(registration.new.fhir_base_url)
+    end
+
+    # Every route is version scoped, so a second PAS version can be added without colliding.
+    it 'serves no endpoints outside the version prefix' do
+      paths = Inferno.routes.select { |route| route[:suite]&.id == suite.id }.map { |route| route[:path] }
+
+      expect(paths).to all(start_with(ONCCertificationG33TestKit::G33Options::PAS_V221_PREFIX))
+    end
   end
 
   describe 'import completeness' do
