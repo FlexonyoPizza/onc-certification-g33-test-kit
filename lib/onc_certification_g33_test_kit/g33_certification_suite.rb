@@ -11,35 +11,52 @@ module ONCCertificationG33TestKit
     title 'ONC Certification (g)(33) Standardized API'
     short_title '(g)(33) Standardized API'
     description %(
-      The ONC Certification (g)(33) Standardized API Test Suite is a testing tool for Health Level 7
-      (HL7®) Fast Healthcare Interoperability Resources (FHIR®) clients seeking to meet the
-      requirements of the § 170.315(g)(33) criterion in the ONC Certification Program.
+      The ONC Certification (g)(33) Standardized API Test Suite is a testing tool
+      for Health Level 7 (HL7®) Fast Healthcare Interoperability Resources
+      (FHIR®) clients seeking to meet the requirements of the
+      [prior authorization submission criterion § 170.315(g)(33)](https://healthit.gov/test-method/provider-prior-authorization-api-prior-authorization-support)
+      in the ONC Certification Program.
 
       **DISCLAIMER**: this test kit is currently a draft and not ready for ONC certification purposes.
 
-      This test suite verifies conformance to [version 2.2.1](https://hl7.org/fhir/us/davinci-pas/2.2.1)
-      of the Da Vinci Prior Authorization Support (PAS) Implementation Guide using the client tests
-      from the [Da Vinci PAS Test Kit](https://github.com/inferno-framework/davinci-pas-test-kit).
+      This test suite is organized into groups that in sum cover the
+      requirements within the [§ 170.315(g)(33) certification
+      criterion](https://healthit.gov/test-method/provider-prior-authorization-api-prior-authorization-support).
+      The groups are intended to be run in order during certification testing, but can
+      be run out of order to support testing during development or certification
+      preparation. Some groups depend on data collected during previous
+      groups to function. In these cases, the group description describes
+      these dependencies.
 
-      Authentication is performed using SMART Backend Services. Unlike the PAS Test Kit's client
-      suite, no client security type is selected when creating a session because § 170.315(g)(33)
-      certification is demonstrated using SMART Backend Services only.
+      Additional details about executing the tests in this suite can be found in
+      the [walkthrough](https://github.com/onc-healthit/onc-certification-g33-test-kit/wiki/Walkthrough)
+      which describes how to execute these tests against a client system.
 
-      To get started, configure the Health IT Module to make prior authorization requests against
-      Inferno's simulated PAS server and begin with the "Client Registration" group. Inferno's
-      simulated PAS endpoints are served under `#{G33Options::PAS_V221_PREFIX}`.
+      To get started, configure the client under test to submit prior authorization
+      requests to Inferno's simulated PAS server using the following endpoints and
+      begin with the "Client Registration" group:
+
+      * FHIR Base URL: `#{G33PASImport.base_url}#{DaVinciPASTestKit::FHIR_PATH}`
+      * Token Endpoint: `#{G33PASImport.base_url}#{SMARTAppLaunch::TOKEN_PATH}`
 
       Systems must pass all tests to qualify for ONC certification.
     )
 
     suite_summary %(
-      The ONC Certification (g)(33) Standardized API Test Kit is a testing tool for Health Level 7
-      (HL7®) Fast Healthcare Interoperability Resources (FHIR®) clients seeking to meet the
-      requirements of the § 170.315(g)(33) criterion in the ONC Certification Program.
+      The ONC Certification (g)(33) Standardized API Test Kit is a testing tool
+      for Health Level 7 (HL7®) Fast Healthcare Interoperability Resources
+      (FHIR®) clients seeking to meet the requirements of the prior
+      authorization submission criterion § 170.315(g)(33) in the ONC
+      Certification Program.
 
-      This suite tests conformance to version 2.2.1 of the Da Vinci Prior Authorization Support
-      (PAS) Implementation Guide using SMART Backend Services authentication. Click
-      'Create Test Session' to begin testing.
+      Systems may adopt later versions of standards than those named in the rule
+      as approved by the ONC Standards Version Advancement Process (SVAP). Please
+      select which approved version of the Da Vinci Prior Authorization Support
+      (PAS) Implementation Guide to test against, and click 'Create Test Session'
+      to begin testing.
+
+      Authorization is performed using SMART Backend Services, so the option to
+      select a client security type is not applicable.
     )
 
     links [
