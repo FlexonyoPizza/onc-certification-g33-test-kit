@@ -71,6 +71,9 @@ The specific test kits that are imported into this test kit include:
    All (g)(33) tests are imported directly from the PAS test kit's client suite.
 1. **[SMART App Launch Test Kit](https://github.com/inferno-framework/smart-app-launch-test-kit)**:
    The PAS test kit uses SMART Backend Services tests which are in turn imported into (g)(33).
+1. **[Subscriptions Test Kit](https://github.com/inferno-framework/subscriptions-test-kit)**:
+   The PAS test kit uses Subscriptions R5 Backport tests for notification delivery, which are in
+   turn imported into (g)(33).
 
 ## Test Kit Code Organization
 
@@ -120,7 +123,7 @@ that is known to be correct. The Da Vinci PAS Server Suite can drive the
 Backend Services client:
 
   1. In one tab, create a (g)(33) session, select the client version, and apply
-     the "Run Against a SMART Backend Services Client" preset.
+     the "Run against the PAS Server Suite" preset.
   1. In another tab, create a session for the "Da Vinci PAS Server Suite v2.2.1"
      with no preset selected. The preset bundled with that suite authenticates
      using a session-specific URL path, which this suite does not support.
