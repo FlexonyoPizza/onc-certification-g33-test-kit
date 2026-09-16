@@ -1,4 +1,4 @@
-The **ONC Certification (g)(33) Standardized API Test Kit** is a testing tool
+The **ONC Certification (g)(33) Prior Authorization Support API Test Kit** is a testing tool
 for Health IT systems seeking to meet the requirements of the ONC [Prior
 Authorization Support criterion §
 170.315(g)(33)](https://healthit.gov/test-method/provider-prior-authorization-api-prior-authorization-support)

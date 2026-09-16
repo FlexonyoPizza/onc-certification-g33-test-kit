@@ -1,5 +1,5 @@
 This walkthrough introduces the **Inferno ONC Certification (g)(33)
-Standardized API Test Kit** by
+Prior Authorization Support API Test Kit** by
 demonstrating its use as an automated testing tool for the
 [§ 170.315(g)(33) prior authorization submission criterion](https://healthit.gov/test-method/provider-prior-authorization-api-prior-authorization-support)
 of the ONC Health IT Certification Program. At the end of this walkthrough,
@@ -40,7 +40,7 @@ The following steps necessary to complete certification testing are described in
 ## Step 1: Create a new (g)(33) test session
 
 * Go to <https://inferno.healthit.gov>.
-* Click the 'ONC (g)(33) Standardized API Test Kit' button under 'ONC Health
+* Click the 'ONC (g)(33) Prior Authorization Support API Test Kit' button under 'ONC Health
   Certification Program', which is an Inferno test kit developed specifically to
   test the requirements of the (g)(33) criterion in the ONC Health IT
   Certification Program.
