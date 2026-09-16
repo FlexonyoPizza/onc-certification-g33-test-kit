@@ -1,4 +1,4 @@
-ONC Certification (g)(33) Standardized API Test Kit documentation. This file is a
+ONC Certification (g)(33) Prior Authorization Support API Test Kit documentation. This file is a
 placeholder generated from the Inferno test kit template and has not yet been
 customized for this test kit.
 

@@ -8,10 +8,10 @@ require_relative 'endpoints/g33_claim_endpoint'
 module ONCCertificationG33TestKit
   class G33CertificationSuite < Inferno::TestSuite
     id :g33_certification
-    title 'ONC Certification (g)(33) Standardized API'
-    short_title '(g)(33) Standardized API'
+    title 'ONC Certification (g)(33) Prior Authorization Support API'
+    short_title '(g)(33) Prior Authorization Support API'
     description %(
-      The ONC Certification (g)(33) Standardized API Test Suite is a testing tool
+      The ONC Certification (g)(33) Prior Authorization Support API Test Suite is a testing tool
       for Health Level 7 (HL7®) Fast Healthcare Interoperability Resources
       (FHIR®) clients seeking to meet the requirements of the
       [prior authorization submission criterion § 170.315(g)(33)](https://healthit.gov/test-method/provider-prior-authorization-api-prior-authorization-support)
@@ -43,20 +43,11 @@ module ONCCertificationG33TestKit
     )
 
     suite_summary %(
-      The ONC Certification (g)(33) Standardized API Test Kit is a testing tool
+      The ONC Certification (g)(33) Prior Authorization Support API Test Kit is a testing tool
       for Health Level 7 (HL7®) Fast Healthcare Interoperability Resources
       (FHIR®) clients seeking to meet the requirements of the prior
       authorization submission criterion § 170.315(g)(33) in the ONC
       Certification Program.
-
-      Systems may adopt later versions of standards than those named in the rule
-      as approved by the ONC Standards Version Advancement Process (SVAP). Please
-      select which approved version of the Da Vinci Prior Authorization Support
-      (PAS) Implementation Guide to test against, and click 'Create Test Session'
-      to begin testing.
-
-      Authorization is performed using SMART Backend Services, so the option to
-      select a client security type is not applicable.
     )
 
     links [
@@ -73,17 +64,26 @@ module ONCCertificationG33TestKit
         url: 'https://github.com/onc-healthit/onc-certification-g33-test-kit/releases'
       },
       {
-        label: 'Implementation Guide',
-        url: "https://hl7.org/fhir/us/davinci-pas/#{G33Options::PAS_V221}/"
+        label: 'Certification Criterion',
+        url: 'https://healthit.gov/test-method/provider-prior-authorization-api-prior-authorization-support'
       }
     ]
 
     suite_option :pas_version,
-                 title: 'Test Suite',
+                 title: 'PAS Version',
                  list_options: [
                    {
-                     label: 'Client Suite v2.2.1',
+                     label: 'Da Vinci PAS v2.2.1',
                      value: G33Options::PAS_VERSION_2_2_1
+                   }
+                 ]
+
+    suite_option :client_type,
+                 title: 'Client Security Type',
+                 list_options: [
+                   {
+                     label: 'SMART Backend Services',
+                     value: G33Options::CLIENT_TYPE
                    }
                  ]
 

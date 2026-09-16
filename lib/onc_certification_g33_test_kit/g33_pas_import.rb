@@ -12,41 +12,11 @@ module ONCCertificationG33TestKit
 
   module G33PASImport
     def self.import!(runnable)
-      select_client_type!(runnable)
       exclude_optional!(runnable)
       rewrite_pas_urls!(runnable)
 
       runnable
     end
-
-    # (g)(33) certifies against SMART Backend Services only, so this suite offers no :client_type
-    # suite option. Without a selected option Inferno keeps every variant of a runnable, so the
-    # ones gated on another client type are dropped and the requirement is cleared from the rest.
-    def self.select_client_type!(runnable)
-      rejected = runnable.all_children.reject { |child| client_type_match?(child) }
-      rejected.each(&:remove_self_from_repository)
-      runnable.all_children.reject! { |child| rejected.include?(child) }
-
-      runnable.all_children.each do |child|
-        child.required_suite_options(client_type_free_requirements(child))
-        select_client_type!(child)
-      end
-    end
-
-    # Keeps runnables that either impose no :client_type requirement or ask for this suite's type.
-    def self.client_type_match?(runnable)
-      requirement = runnable.suite_option_requirements&.find { |option| option.id == :client_type }
-
-      requirement.nil? || requirement.value == G33Options::CLIENT_TYPE
-    end
-    private_class_method :client_type_match?
-
-    def self.client_type_free_requirements(runnable)
-      (runnable.suite_option_requirements || [])
-        .reject { |option| option.id == :client_type }
-        .to_h { |option| [option.id, option.value] }
-    end
-    private_class_method :client_type_free_requirements
 
     def self.exclude_optional!(runnable)
       runnable.all_children.reject(&:required?).each(&:remove_self_from_repository)

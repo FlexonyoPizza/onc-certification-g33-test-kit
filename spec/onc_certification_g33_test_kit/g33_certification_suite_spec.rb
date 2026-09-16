@@ -64,13 +64,6 @@ RSpec.describe ONCCertificationG33TestKit::G33CertificationSuite do
   end
 
   describe 'backend services authentication' do
-    it 'keeps the SMART registration test and drops the other client type variants' do
-      titles = all_runnables.map(&:title)
-
-      expect(titles).to include('PAS client registers with Inferno as a SMART confidential asymmetric client')
-      expect(titles).to_not include('PAS client invokes the registration endpoint to register as a UDAP client')
-    end
-
     it 'imports the SMART authentication review group' do
       expect(all_runnables.map(&:id)).to include(a_string_including('auth_smart'))
     end
@@ -132,7 +125,12 @@ RSpec.describe ONCCertificationG33TestKit::G33CertificationSuite do
       [Inferno::DSL::SuiteOption.new(id: :client_type, value: ONCCertificationG33TestKit::G33Options::CLIENT_TYPE)]
     end
     let(:expected_ids) { short_ids(leaf_tests(pas_suite, smart_option).select(&:required?)) }
-    let(:imported_ids) { short_ids(leaf_tests(suite)) }
+    let(:selected_options) do
+      suite.suite_options.map do |option|
+        Inferno::DSL::SuiteOption.new(id: option.id, value: option.list_options.first[:value])
+      end
+    end
+    let(:imported_ids) { short_ids(leaf_tests(suite, selected_options)) }
 
     it 'imports every required SMART Backend Services test from the PAS client suite' do
       expect(expected_ids).to_not be_empty

@@ -3,9 +3,9 @@ require_relative 'version'
 module ONCCertificationG33TestKit
   class Metadata < Inferno::TestKit
     id :onc_certification_g33_test_kit
-    title 'ONC Certification (g)(33) Standardized API Test Kit'
+    title 'ONC Certification (g)(33) Prior Authorization Support API Test Kit'
     description <<~DESCRIPTION
-      The ONC Certification (g)(33) Standardized API Test Kit is a testing tool
+      The ONC Certification (g)(33) Prior Authorization Support API Test Kit is a testing tool
       for Health IT systems seeking to meet the requirements of the prior
       authorization submission criterion § 170.315(g)(33) in the ONC Health IT
       Certification Program.
@@ -13,13 +13,9 @@ module ONCCertificationG33TestKit
       **DISCLAIMER**: this test kit is currently a **DRAFT** and not ready for ONC certification purposes.
       <!-- break -->
 
-      The PAS standard allows clients to support one of several versions of the
-      Da Vinci Prior Authorization Support Implementation Guide. To begin testing,
-      select a version for Inferno to verify against, and click 'Create Test Session'.
-
       ## Status
 
-      The ONC Certification (g)(33) Standardized API Test Kit is actively
+      The ONC Certification (g)(33) Prior Authorization Support API Test Kit is actively
       developed and updates are released monthly.
 
       The test kit currently tests requirements for the [prior authorization
@@ -40,7 +36,7 @@ module ONCCertificationG33TestKit
 
       ## Repository and Resources
 
-      The ONC Certification (g)(33) Standardized API Test Kit can be
+      The ONC Certification (g)(33) Prior Authorization Support API Test Kit can be
       [downloaded from its GitHub repository](https://github.com/onc-healthit/onc-certification-g33-test-kit),
       where additional resources and documentation are also available to help users
       get started with the testing process. The

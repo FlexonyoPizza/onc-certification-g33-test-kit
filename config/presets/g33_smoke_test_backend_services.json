@@ -1,5 +1,5 @@
 {
-  "title": "Run Against a SMART Backend Services Client",
+  "title": "Run against the PAS Server Suite",
   "id": "g33_smoke_test_backend_services",
   "test_suite_id": "g33_certification",
   "inputs": [
