@@ -119,32 +119,55 @@ likely to change.
 Besides the unit tests provided within this test kit, after each update
 the tests should be validated against a complete client implementation
 that is known to be correct. The Da Vinci PAS Server Suite can drive the
-(g)(33) suite for a partial end-to-end test, since it can act as a SMART
-Backend Services client:
+(g)(33) suite for a partial end-to-end test by sending it real PAS requests.
 
-  1. In one tab, create a (g)(33) session, select the client version, and apply
-     the "Run against the PAS Server Suite" preset.
-  1. In another tab, create a session for the "Da Vinci PAS Server Suite v2.2.1"
+The PAS Server Suite currently has no tests that request a SMART Backend Services access
+token, and Inferno's FHIR client only refreshes a token it already has rather
+than fetching an initial one. An access token therefore has to be obtained
+separately and supplied to the server suite as an input. The SMART App Launch
+suite can mint one against the (g)(33) token endpoint, so three sessions are
+used together:
+
+  1. In the first tab, create a (g)(33) session and apply the
+     "Run against the PAS Server Suite" preset. Run "1 Client Registration",
+     note the Client Id, and leave the test waiting on its "User Action
+     Required" dialog so that the token endpoint will accept requests for this
+     session.
+  1. In a second tab, create a session for the "SMART App Launch STU2.2" suite
+     and run the "3 Backend Services" group, configured with:
+     - FHIR Endpoint: `<inferno-base>/custom/g33_certification/pas_v221/fhir`
+     - Auth Type "Backend Services", the Client Id from step 1, and Encryption
+       Algorithm `ES384`. Leave the JWKS and Key ID blank so that Inferno's
+       default keys are used.
+
+     The group runs as a unit, so its individual tests cannot be run on their
+     own. Only the last two are expected to pass here: "3.2.01" checks TLS and
+     fails when running locally over HTTP, and "3.2.02" through "3.2.04" send
+     deliberately malformed token requests that the simulated authorization
+     server does not reject. Copy the `bearer_token` output from test "3.2.06".
+  1. In a third tab, create a session for the "Da Vinci PAS Server Suite v2.2.1"
      with no preset selected. The preset bundled with that suite authenticates
      using a session-specific URL path, which this suite does not support.
-  1. Configure the server suite:
+     Configure it with:
      - FHIR Server Endpoint URL:
        `<inferno-base>/custom/g33_certification/pas_v221/fhir`. Stop at `/fhir`;
        the suite appends `/Subscription` and `/Claim/$submit` itself.
-     - OAuth Credentials: Auth Type "Backend Services", the client id from the
-       (g)(33) preset, and the token endpoint
-       `<inferno-base>/custom/g33_certification/pas_v221/auth/token`. This is the
-       only token path this suite serves, and is the same one the SMART discovery
-       document advertises. An access token must be provided, since Inferno's
-       FHIR client only refreshes an existing token and will not fetch an initial
-       one.
+     - OAuth Credentials: Auth Type "Backend Services" and the access token
+       copied from step 2.
      - Request payloads for the group being run, which the PAS Test Kit's own
        server preset provides.
-  1. Start the (g)(33) group under test first and leave it on its "User Action
+  1. Start the (g)(33) group under test and leave it on its "User Action
      Required" dialog, then run the corresponding server suite group. The
      simulated payer rejects requests whose client id is not tied to a session
-     that is currently waiting.
+     that is currently waiting, so the order matters.
   1. Review the results: the (g)(33) client tests should all pass.
+
+Two notes on the token obtained in step 2. It expires, so a long session may need
+it refreshed by repeating that step. And because the malformed token requests
+from "3.2.02" through "3.2.04" are recorded against the (g)(33) session, the
+"Review Authentication Interactions" group will report them as invalid token
+requests; that group is best exercised in a separate (g)(33) session whose only
+token request is a well-formed one.
 
 ## FHIR and Terminology Validation
 

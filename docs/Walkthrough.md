@@ -44,10 +44,7 @@ The following steps necessary to complete certification testing are described in
   Certification Program', which is an Inferno test kit developed specifically to
   test the requirements of the (g)(33) criterion in the ONC Health IT
   Certification Program.
-* Select which version of the PAS client suite to test against, then click
-  'Create Test Session'.
-
-*Note that there is no option to select a specific client security type. The (g)(33) criterion requires SMART Backend Services authentication, so it is always used and the tests that apply to other authentication approaches are not present.
+* Click 'Create Test Session' to start testing.
 
 This creates a new test session. The header states which version of the test kit
 is being used and which client version was selected.
@@ -84,22 +81,21 @@ requests to Inferno's endpoints and to authenticate using SMART Backend
 Services.
 
 Inferno's simulated PAS endpoints:
-*   FHIR base URL: `https://inferno.healthit.gov/custom/g33_certification/pas_v221/fhir`
+*   FHIR base URL: `https://inferno.healthit.gov/suites/custom/g33_certification/pas_v221/fhir`
 *   Prior authorization submission: `<FHIR base>/Claim/$submit`
 *   Prior authorization inquiry: `<FHIR base>/Claim/$inquire`
 *   Subscription creation: `<FHIR base>/Subscription`
 *   SMART discovery: `<FHIR base>/.well-known/smart-configuration`
 
 The exact URLs for your session are displayed during the 'Client Registration'
-group, and are the authoritative values to configure. Note that the PAS version
-appears in the path as `pas_v221`, so that later PAS versions can be added to
-this same test kit.
+group, and are the authoritative values to configure.
 
 ## Step 3: Perform Client Registration tests
 
 The 'Client Registration' group records the connection details that the rest of
-the tests rely on, so it must be run first. No prior authorization requests are
-exchanged during this group.
+the tests rely on, so it must be run first. Inferno will not accept prior authorization 
+requests while waiting during this group. However, the client system will be able
+to make token requests to validate connectivity and client registration.
 
 *   Select '1 Client Registration' and click 'RUN TESTS'.
 *   Provide the registration inputs:
@@ -115,10 +111,7 @@ exchanged during this group.
 *   Click 'SUBMIT'.
 *   Inferno displays its simulated server details, including the FHIR base URL
     and token endpoint. Configure the Health IT Module to connect to Inferno at
-    these endpoints, then click the confirmation link in the dialog.
-
-These values are carried forward and locked in the later groups, so you only
-enter them once.
+    these endpoints, test token requests if desired, then click the confirmation link in the dialog.
 
 ## Step 4: Perform Subscription Setup tests
 
@@ -128,20 +121,19 @@ verifies that the Health IT Module can create a conformant Subscription and
 respond to Inferno's handshake.
 
 *   Select '2 Subscription Setup' and click 'RUN TESTS'.
+*   Optionally provide the **Client Notification Access Token**: the bearer token
+    that Inferno will send on requests to the Health IT Module's rest-hook
+    notification endpoint, including the handshake notification sent after
+    Subscription creation. This is not needed if the Health IT Module will create
+    a Subscription with an appropriate header value in the `channel.header`
+    element. If a value for the `authorization` header is provided in
+    `channel.header`, this input will override it.
 *   When the 'User Action Required' dialog appears, submit a `POST` containing a
-    Subscription resource to the URL shown in the dialog.
-*   The Subscription must be conformant to the R4/B Topic-Based Subscription
-    profile and to PAS requirements on Subscriptions, including:
-    *   a `rest-hook` channel type,
-    *   a resolvable `channel.endpoint`,
-    *   the PAS-defined subscription topic in `criteria`, and
-    *   filter criteria identifying the client's organization.
-*   Upon receipt, Inferno sends a handshake notification to the endpoint named in
-    the Subscription and continues the test based on the result, so that endpoint
-    must be reachable by Inferno.
-
-PAS requires that clients only support subscriptions with
-`content=full-resource`, which this group verifies.
+    PAS-conformant Subscription resource to the URL shown in the dialog. The test
+    descriptions describe the requirements checked, and any that the Subscription
+    does not meet are reported in the results.
+*   Upon receipt, Inferno will send a handshake notification to the endpoint named in
+    the Subscription to verify that notifications can be sent to it.
 
 ## Step 5: Perform PAS Workflow tests
 
@@ -162,19 +154,31 @@ appropriately to the responses returned. This group contains five sub-groups:
 Each sub-group follows the same pattern:
 
 *   Select the sub-group and click 'RUN TESTS'.
-*   Optionally provide a response bundle for Inferno to return. If the relevant
-    response input is populated, it will be returned with current timestamps.
-    Otherwise Inferno generates a response from the received Claim.
+*   Optionally provide the responses Inferno should return. Which inputs appear
+    depends on the sub-group being run, so running 'RUN ALL TESTS' at the level of
+    'PAS Workflows' presents all of them at once:
+    *   **Approval Workflow**: Claim approved response JSON
+    *   **Denial Workflow**: Claim denied response JSON
+    *   **Pended Workflow**: Claim pended response JSON, Claim updated
+        notification JSON, and Inquire approved response JSON
+    *   **Claim Updates**: Initial claim response JSON, Add-item update response
+        JSON, Modify-and-cancel update response JSON, and
+        Cancel-entire-request update response JSON
+    *   **Payer Modifications**: Claim modified response JSON
 *   When the 'User Action Required' dialog appears, submit a prior authorization
     request from the Health IT Module to the URL shown.
 *   Inferno validates the request bundle and the response bundle it returned, and
     then asks you to attest that the Health IT Module displayed the decision
     appropriately.
 
-The Claim Updates sub-group additionally verifies the PAS-specific rules for
-updating a previously submitted Claim, such as including the prior Claim in
-`Claim.related.claim`, preserving all previous item and supportingInfo entries,
-and flagging canceled and changed entries with the appropriate extensions.
+These response inputs are all optional. When one is populated, Inferno modifies
+the provided message before returning it, for example to apply current
+timestamps; see [Inferno modifications of tester-provided responses and
+notifications](https://github.com/inferno-framework/davinci-pas-test-kit/wiki/Client-Details#inferno-modifications-of-tester-provided-responses-and-notifications)
+in the PAS Test Kit wiki for the details. When one is left blank, Inferno instead
+generates a response from the request it received; see [Generation
+logic](https://github.com/inferno-framework/davinci-pas-test-kit/wiki/Client-Details#generation-logic)
+in the PAS Test Kit wiki for how those responses are built.
 
 ## Step 6: Perform Must Support element tests
 
@@ -193,6 +197,29 @@ sends and in the responses it can receive.
 
 Inferno considers requests made during the PAS Workflows group as well, so only
 profiles and elements not already demonstrated there need to be submitted here.
+
+Not every Health IT Module collects every must support element, and the PAS
+implementation guide does not require that they do. Three of the tests in this
+group therefore offer an attestation when coverage is incomplete:
+
+*   'At least one instance of a request profile (PAS Medication Request, PAS
+    Service Request, PAS Device Request, or PAS Nutrition Order)...'
+*   'All must support elements for other profiles referenced by Claim
+    submissions are observed on $submit requests'
+*   'All must support elements for other profiles referenced by Claim inquiries
+    are observed on $inquire requests'
+
+If every must support element was observed, these tests pass without asking for
+anything further. If any were not, the test pauses and lists the unobserved
+elements, and the tester attests whether the Health IT Module collects that data:
+
+*   Follow the link indicating the statement is **true** if the Health IT Module
+    does **not** collect the data for the listed elements. The test passes.
+*   Follow the link indicating the statement is **false** if it does collect
+    them, meaning they should have appeared in the requests. The test fails.
+
+The unobserved elements are also recorded as `info` messages on the test result,
+so they can be reviewed after the run.
 
 ## Step 7: Perform Error Handling tests
 
