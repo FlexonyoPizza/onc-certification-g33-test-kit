@@ -9,7 +9,7 @@ module ONCCertificationG33TestKit
   class G33CertificationSuite < Inferno::TestSuite
     id :g33_certification
     title 'ONC Certification (g)(33) Prior Authorization Support API'
-    short_title '(g)(33) Prior Authorization Support API'
+    short_title '(g)(33) PAS API'
     description %(
       The ONC Certification (g)(33) Prior Authorization Support API Test Suite is a testing tool
       for Health Level 7 (HL7®) Fast Healthcare Interoperability Resources
