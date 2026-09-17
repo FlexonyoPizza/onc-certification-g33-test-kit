@@ -1,6 +1,6 @@
-# ONC Certification (g)(33) Standardized API Test Kit
+# ONC Certification (g)(33) Prior Authorization Support API Test Kit
 
-The ONC Certification (g)(33) Standardized API Test Kit is an [Inferno](https://github.com/inferno-framework/inferno-core)
+The ONC Certification (g)(33) Prior Authorization Support API Test Kit is an [Inferno](https://github.com/inferno-framework/inferno-core)
 Test Kit for testing Health IT systems against the § 170.315(g)(33) criterion.
 
 > **Note:** This test kit is an initial scaffold. It currently contains only a
